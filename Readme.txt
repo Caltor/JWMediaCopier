@@ -4,15 +4,16 @@ Description:
 With the imminent demise of Soundbox Media subscriptions there is no inbuilt way to automatically get the images into Soundbox for the meetings. This script will automatically copy all of the images from the meeting workbooks in JW Library to Soundbox.
 
 Limitations:
+* The images for the Congregation Bible Study are NOT copied.
 * The WatchTower images are NOT copied.
-* All images for the month are copied to EVERY week. This means that the sound operator will have to manually pick the relevant media for the meeting.
-* Images for every resolution are currently copied to Soundbox. The sound operators will need to manually select the correct resolution files.
-* The images are listed in Soundbox with the source filenames. The sound operators will need to manually select the correct image file by previewing each one.
 * The script will copy the images from ALL meeting workbooks found in JW Library. This includes 2018 and before. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
 
 PreRequisites:
 Soundbox installed and working
 JWLibrary installed and working
+
+Testing:
+Before testing this program you might want to disable the Soundbox MediaJuice service and delete all of your Soundbox media files. This will prove that all of the media files in soundbox have come from this program and not from Soundbox Media subscription. Note as always you should not perform testing on a live (production) system and it is your responsibility to backup any files before deleting them and ensure correct operation of this program.
 
 Installation:
 1. Download and install the latest version of Python 3 from https://www.python.org/downloads/windows/. Make sure to tick the checkbox for "Add Python to PATH" during the installation.
@@ -35,4 +36,12 @@ If you get the message 'python is not recognized as an internal or external comm
 >C:\Users\username\AppData\Local\Programs\Python\Python37\python C:\Scripts\CopyJWMedia.py
 
 
+Version History
+---------------
+Version 1:
+* Initial Release
+
+Version 2:
+* Images are now copied to the correct week and prefixed with the listing codes.
+* Only the high resolution images are copied to Soundbox.
 

@@ -12,6 +12,12 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 print("Copying images from JW Library Meeting Workbooks to Soundbox...")
 
+meeting_parts = {
+    '10': '3',  # Living as Christians
+    '21': '1',  # Treasures from God's Word
+    '107': '3'  # Living as Christians
+    }
+
 start = time.time()
 # By using os.path.join() instead of backslashes we make this script cross-platform compatible. You know for when we get JWlibrary and Soundbox for Linux and Mac! ;) teehee...
 targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalendar")
@@ -32,30 +38,31 @@ for source_folder in mwb_folders:
     c = conn.cursor()
     for row in c.execute("SELECT * FROM Document ORDER BY DocumentId"):
         # print(row['Title'])
-        if row['Class'] == '106':
+        row_class = row['Class']
+        if row_class == '106':
             # This is a new week
             week = row['Title']
             #print("Week: ", week)
             split_week = week.split('-')    #splits into 'from' and 'to' sections
             if len(split_week) == 1:
                 split_week = week.split('–')
-            print("split_week", split_week)
+            #print("split_week", split_week)
             #print("split_week[0]", split_week[0])
             #print("split_week[1]", split_week[1])
             #print('Month', split_week[0])
             #print('Dates', split_week[1])   #get first character
             from_date = split_week[0].split()  # splits into month and date
             first_date = from_date[1]
-            print("first_date", first_date)
+            #print("first_date", first_date)
             #print("First Date:", first_date)
             target_folder = year + "-" + month + "-" + str(first_date).zfill(2)
             #print("target_folder", target_folder)
             targetpath = os.path.join(targetpath_base, year, target_folder)
-            print("targetpath", targetpath)
+            print("Writing files to", targetpath)
             if not os.path.exists(targetpath):
                 os.makedirs(targetpath)
 
-        if row['Class'] in ['21','107','10']:
+        if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians
             document_id = row['DocumentId']
             #print("Document: ", document_id)
@@ -63,16 +70,19 @@ for source_folder in mwb_folders:
             # Get all of the multimedia records for this document
             d = conn.cursor()
             t_doc = (document_id, )
+            counter = 0
             for row2 in d.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE DocumentId = ? AND CategoryType = 8", t_doc):
+                counter += 10
                 #print(row2['MultimediaId'])
                 sourcefile = row2['Filepath']
-                target_file_name = row2['Label'] + ".jpg"
+                meeting_part = meeting_parts[row_class]
+                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'] + ".jpg"
                 #print("Source file:", sourcefile)
                 #print("Target file:", target_file_name)
                 target_file_path = os.path.join(targetpath, target_file_name)
-                if not os.path.exists(targetfile):
-                    sourcefile = os.path.join(source_path, sourcefile)
-                    shutil.copyfile(sourcefile, targetfile)
+                if not os.path.exists(target_file_path):
+                    source_file_path = os.path.join(source_path, sourcefile)
+                    shutil.copyfile(source_file_path, target_file_path)
 
     conn.close()
 

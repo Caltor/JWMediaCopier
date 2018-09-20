@@ -1,8 +1,5 @@
 ## TODO:
 ## * Split code into functions rather than one big script
-## * Copy files to only the relevant week (need to read .db sqlite file to get salient info)
-## * Only copy files of preferred resolution
-## * Change filename to description as per Soundbox media subscriptions
 ## * Set routine to only copy years from 2019 onwards
 ## * Copy WatchTower images
 

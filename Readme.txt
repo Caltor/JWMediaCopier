@@ -1,12 +1,12 @@
-WARNING: PLEASE NOTE THIS SCRIPT WILL COPY LOTS OF SUPERFLUOUS FILES INTO YOUR SOUNDBOX FOLDERS AND PROBABLY CAUSE MASS CONFUSION FOR YOUR SOUND OPERATORS. IT IS STRONGLY ADVISED TO MAKE A BACKUP OF YOUR SOUNDBOX MEDIA FOLDER BEFORE PROCEEDING. There you have been warned!!!
+WARNING: EXPERIMENTAL SCRIPT - PLEASE NOTE THIS SCRIPT WILL COPY LOTS OF FILES INTO YOUR SOUNDBOX FOLDERS AND MAY MESS UP YOUR SOUNDBOX MEDIA FOLDERS. IT IS STRONGLY ADVISED TO MAKE A BACKUP OF YOUR SOUNDBOX MEDIA FOLDER BEFORE PROCEEDING ON A PRODUCTION/LIVE (KINGDOM HALL) COMPUTER. There you have been warned!!!
 
 Description:
-With the imminent demise of Soundbox Media subscriptions there is no inbuilt way to automatically get the images into Soundbox for the meetings. This script will automatically copy all of the images from the meeting workbooks in JW Library to Soundbox.
+With the imminent demise of Soundbox Media subscriptions there is no inbuilt way to automatically get the images into Soundbox for the meetings. This script will automatically copy all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox.
 
 Limitations:
 * The images for the Congregation Bible Study are NOT copied.
-* The WatchTower images are NOT copied.
 * The script will copy the images from ALL meeting workbooks found in JW Library. This includes 2018 and before. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
+* There appears to have been a change in the Meeting Workbook DB structure sometime before 2018. Please delete any meeting workbooks before 2018 in JW Library before attempting to run this script.
 
 PreRequisites:
 Soundbox installed and working
@@ -18,7 +18,8 @@ Before testing this program you might want to disable the Soundbox MediaJuice se
 Installation:
 1. Download and install the latest version of Python 3 from https://www.python.org/downloads/windows/. Make sure to tick the checkbox for "Add Python to PATH" during the installation.
 2. Download and save the CopyJWMedia.py script to a suitable location on your computer such as C:\Scripts
-3. Edit line 9 of the CopyJWMedia.py script to reflect the name of your JWLibrary app package folder. This folder is typically found in C:\Users\username\AppData\Local\Packages. Once you have made this change save and close the script file.
+3. Edit line 1 of the CopyJWMedia.py script to reflect the name of your JWLibrary app package folder. This folder is typically found in C:\Users\username\AppData\Local\Packages. Once you have made this change save and close the script file.
+4. If you want to limit the copying of publications to a certain year you can also edit line 2 of the CopyJWMedia.py script to specify the starting year
 
 Usage:
 1. Download the required meeting workbooks in JWLibrary.
@@ -45,3 +46,6 @@ Version 2:
 * Images are now copied to the correct week and prefixed with the listing codes.
 * Only the high resolution images are copied to Soundbox.
 
+Version 3:
+* Watchtower images are now copied to Soundbox.
+* Publications before 2017 are ignored.

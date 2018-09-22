@@ -1,7 +1,10 @@
+starting_year = 2017
+jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
+
 ## TODO:
 ## * Split code into functions rather than one big script
-## * Set routine to only copy years from 2019 onwards
 ## * Allow user to only copy Watchtower or Meeting Workbooks using command line switches
+## * Automatically detect the correct folder name for JWLibrary
 
 import os, calendar, shutil, time, sqlite3
 from datetime import date, timedelta
@@ -60,15 +63,12 @@ def int2date(argdate: int) -> date:
 
                     
 ## Main program ##
-jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
-
 print("Copying images from JW Library Meeting Workbooks to Soundbox...")
 
 meeting_parts = {
     '10': '3',  # Living as Christians
     '21': '1',  # Treasures from God's Word
-    '107': '3', # Living as Christians
-    '40': '2'   # Watchtower
+    '107': '3' # Living as Christians
     }
 
 start = time.time()
@@ -80,9 +80,14 @@ array = os.listdir(path)
 print("\r\nMeeting Workbooks:")
 filtered_folders = get_filtered_folders("mwb_E_", array)
 for source_folder in filtered_folders:
-    print("Copying " + source_folder)
     year, month = get_year_month_from_folder(source_folder)
+    
+    ## Ignore years before 2017
+    if int(year) < starting_year:
+        continue
 
+    print("Copying " + source_folder)
+        
     source_path = os.path.join(path, source_folder)
     dbpath = os.path.join(source_path, source_folder+".db")
 
@@ -131,17 +136,23 @@ for source_folder in filtered_folders:
 print("\r\nWatchtowers:")
 filtered_folders = get_filtered_folders("w_E_", array)
 for source_folder in filtered_folders:
-    print("Copying "+source_folder)
     dbpath = os.path.join(path, source_folder, source_folder+".db")
     conn = get_db_connection(dbpath)
     study_date = get_first_date_wt(conn)
-    study_date += timedelta(days=6)
-        
+    study_date += timedelta(days=6) # Change w/c date from Monday to Sunday
+
+    ## Create target folder
+    year = str(study_date.year)
+
+    ## Ignore years before 2017
+    if int(year) < starting_year:
+        continue
+    
+    print("Copying "+source_folder)
+
     for document in get_documents(conn):
         document_class = document['Class']
         if document_class == '40':
-            ## Create target folder
-            year = str(study_date.year)
             folder_name = str(study_date)
             targetpath = os.path.join(targetpath_base, year, folder_name)
             print("Writing files to", targetpath)
@@ -156,12 +167,12 @@ for source_folder in filtered_folders:
                 target_file_path = os.path.join(targetpath, "W2-" + str(counter).zfill(3) + " " + image['Label'] + ".jpg")
                 copyfile_nooverwrite(source_file_path, target_file_path)
 
-            study_date += timedelta(days=7)
+            study_date += timedelta(days=7) #Increment the week
             
     conn.close()
     
 elapsed = str(time.time() - start)
-print("Finished")
+print("\r\nFinished")
 print("Time taken: " + elapsed + " seconds")
 
 

@@ -1,10 +1,65 @@
 ## TODO:
 ## * Split code into functions rather than one big script
 ## * Set routine to only copy years from 2019 onwards
-## * Copy WatchTower images
+## * Allow user to only copy Watchtower or Meeting Workbooks using command line switches
 
 import os, calendar, shutil, time, sqlite3
+from datetime import date, timedelta
 
+def get_filtered_folders(search_string, array):
+    return list(filter(lambda x: search_string in x, array))
+
+def get_year_month_from_folder(folder_name):
+    year = folder_name[-6:-2]
+    month = folder_name[-2:]
+    return (year, month)
+
+def get_db_connection(path):
+    conn = sqlite3.connect(dbpath)
+    conn.row_factory = sqlite3.Row # allows accessing columns using column name - see https://docs.python.org/2/library/sqlite3.html#row-objects
+    return conn
+
+def get_documents(conn):
+    c = conn.cursor()
+    return c.execute("SELECT * FROM Document ORDER BY DocumentId")
+
+def get_document_multimedia(documentid, conn):
+    # Get all of the multimedia records for this document
+    c = conn.cursor()
+    return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE DocumentId = ? AND CategoryType = 8", str(documentid))
+
+def get_first_date_wt(conn):
+    c = conn.cursor()
+    c.execute("SELECT FirstDatedTextDateOffset FROM Publication")
+    row = c.fetchone()
+    return int2date(row[0])
+
+def copyfile_nooverwrite(source, target):
+    if not os.path.exists(target):
+        shutil.copy2(source, target)
+
+def int2date(argdate: int) -> date:
+    """
+    If you have date as an integer, use this method to obtain a datetime.date object.
+
+    Parameters
+    ----------
+    argdate : int
+      Date as a regular integer value (example: 20160618)
+
+    Returns
+    -------
+    dateandtime.date
+      A date object which corresponds to the given value `argdate`.
+    """
+    year = int(argdate / 10000)
+    month = int((argdate % 10000) / 100)
+    day = int(argdate % 100)
+
+    return date(year, month, day)
+
+                    
+## Main program ##
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 print("Copying images from JW Library Meeting Workbooks to Soundbox...")
@@ -12,7 +67,8 @@ print("Copying images from JW Library Meeting Workbooks to Soundbox...")
 meeting_parts = {
     '10': '3',  # Living as Christians
     '21': '1',  # Treasures from God's Word
-    '107': '3'  # Living as Christians
+    '107': '3', # Living as Christians
+    '40': '2'   # Watchtower
     }
 
 start = time.time()
@@ -20,40 +76,30 @@ start = time.time()
 targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalendar")
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
 array = os.listdir(path)
-search_string = "mwb_E_"
-mwb_folders = list(filter(lambda x: search_string in x, array))
-for source_folder in mwb_folders:
+
+print("\r\nMeeting Workbooks:")
+filtered_folders = get_filtered_folders("mwb_E_", array)
+for source_folder in filtered_folders:
     print("Copying " + source_folder)
-    year = source_folder[-6:-2]
-    month = source_folder[-2:]
+    year, month = get_year_month_from_folder(source_folder)
 
     source_path = os.path.join(path, source_folder)
     dbpath = os.path.join(source_path, source_folder+".db")
 
-    conn = sqlite3.connect(dbpath)
-    conn.row_factory = sqlite3.Row # allows accessing columns using column name - see https://docs.python.org/2/library/sqlite3.html#row-objects
+    conn = get_db_connection(dbpath)
     c = conn.cursor()
     for row in c.execute("SELECT * FROM Document ORDER BY DocumentId"):
-        # print(row['Title'])
         row_class = row['Class']
         if row_class == '106':
             # This is a new week
             week = row['Title']
-            #print("Week: ", week)
             split_week = week.split('-')    #splits into 'from' and 'to' sections
             if len(split_week) == 1:
                 split_week = week.split('–')
-            #print("split_week", split_week)
-            #print("split_week[0]", split_week[0])
-            #print("split_week[1]", split_week[1])
-            #print('Month', split_week[0])
-            #print('Dates', split_week[1])   #get first character
+
             from_date = split_week[0].split()  # splits into month and date
             first_date = from_date[1]
-            #print("first_date", first_date)
-            #print("First Date:", first_date)
             target_folder = year + "-" + month + "-" + str(first_date).zfill(2)
-            #print("target_folder", target_folder)
             targetpath = os.path.join(targetpath_base, year, target_folder)
             print("Writing files to", targetpath)
             if not os.path.exists(targetpath):
@@ -70,12 +116,9 @@ for source_folder in mwb_folders:
             counter = 0
             for row2 in d.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE DocumentId = ? AND CategoryType = 8", t_doc):
                 counter += 10
-                #print(row2['MultimediaId'])
                 sourcefile = row2['Filepath']
                 meeting_part = meeting_parts[row_class]
                 target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'] + ".jpg"
-                #print("Source file:", sourcefile)
-                #print("Target file:", target_file_name)
                 target_file_path = os.path.join(targetpath, target_file_name)
                 if not os.path.exists(target_file_path):
                     source_file_path = os.path.join(source_path, sourcefile)
@@ -83,25 +126,42 @@ for source_folder in mwb_folders:
 
     conn.close()
 
-##    newcal = calendar.Calendar().itermonthdates(int(year), int(month))    #get all the dates in this month
-##
-##    # filter the list to only Mondays
-##    filtered_list = list(filter(lambda x: x.weekday() == 0, newcal)) # If we need Sundays in the future then the filter expression becomes x.weekday() in [0,6]
-##
-##    # Loop through the filtered list of dates copying all the files as we go
-##    for day in filtered_list:
-##        targetpath = os.path.join(targetpath_base, year, str(day))
-##        if not os.path.exists(targetpath):
-##            os.makedirs(targetpath)
-##
-##        sourcepath = os.path.join(path, source_folder)
-##        sourcefiles = os.listdir(sourcepath)
-##        for file in sourcefiles:
-##            targetfile = os.path.join(targetpath, file)
-##            if not os.path.exists(targetfile):
-##                sourcefile = os.path.join(sourcepath, file)
-##                shutil.copyfile(sourcefile, targetfile)
+
+## WatchTower
+print("\r\nWatchtowers:")
+filtered_folders = get_filtered_folders("w_E_", array)
+for source_folder in filtered_folders:
+    print("Copying "+source_folder)
+    dbpath = os.path.join(path, source_folder, source_folder+".db")
+    conn = get_db_connection(dbpath)
+    study_date = get_first_date_wt(conn)
+    study_date += timedelta(days=6)
+        
+    for document in get_documents(conn):
+        document_class = document['Class']
+        if document_class == '40':
+            ## Create target folder
+            year = str(study_date.year)
+            folder_name = str(study_date)
+            targetpath = os.path.join(targetpath_base, year, folder_name)
+            print("Writing files to", targetpath)
+            if not os.path.exists(targetpath):
+                os.makedirs(targetpath)
+                
+            counter = 0
+            images = get_document_multimedia(document['DocumentId'], conn)
+            for image in images:
+                counter += 10
+                source_file_path = os.path.join(path, source_folder, image['Filepath'])
+                target_file_path = os.path.join(targetpath, "W2-" + str(counter).zfill(3) + " " + image['Label'] + ".jpg")
+                copyfile_nooverwrite(source_file_path, target_file_path)
+
+            study_date += timedelta(days=7)
             
+    conn.close()
+    
 elapsed = str(time.time() - start)
 print("Finished")
 print("Time taken: " + elapsed + " seconds")
+
+

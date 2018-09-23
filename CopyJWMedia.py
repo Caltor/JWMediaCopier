@@ -123,7 +123,7 @@ for source_folder in filtered_folders:
                 counter += 10
                 sourcefile = row2['Filepath']
                 meeting_part = meeting_parts[row_class]
-                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'] + ".jpg"
+                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','') + ".jpg"
                 target_file_path = os.path.join(targetpath, target_file_name)
                 if not os.path.exists(target_file_path):
                     source_file_path = os.path.join(source_path, sourcefile)

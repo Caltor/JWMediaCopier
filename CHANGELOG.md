@@ -1,5 +1,5 @@
 ## 0.3.1 - 23/09/2018
-## Fixed
+### Fixed
 * Strip question marks from file names
 
 ## 0.3.0 - 22/09/2018

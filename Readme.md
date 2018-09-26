@@ -9,8 +9,8 @@ From 31st December 2018 Soundbox will no longer be supported and the media subsc
 * The script will copy the images from ALL meeting workbooks found in JW Library. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
 
 ## PreRequisites
-Soundbox installed and working
-JWLibrary installed and working
+* Soundbox installed and working
+* JWLibrary installed and working
 
 ## Testing
 Before testing this program you might want to stop (and disable) the "Soundbox MediaJuice" service and delete all of your Soundbox media files. This will prove that all of the media files in soundbox have come from this program and not from Soundbox Media subscription. Note as always you should not perform testing on a live (production) system and it is your responsibility to backup any files before deleting them and ensure correct operation of this program.

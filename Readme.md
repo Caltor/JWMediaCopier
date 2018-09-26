@@ -4,13 +4,13 @@
 With the imminent demise of Soundbox Media subscriptions there is no inbuilt way to automatically get the images into Soundbox for the meetings. This script will automatically copy all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox.
 
 # Limitations
+* Media before 2018 is not copied. This is by design because the DB structure before this does not include the necessary tables for this script to operate.
 * The images for the Congregation Bible Study are NOT copied.
-* The script will copy the images from ALL meeting workbooks found in JW Library. This includes 2018 and before. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
-* There appears to have been a change in the Meeting Workbook DB structure sometime before 2018. Please delete any meeting workbooks before 2018 in JW Library before attempting to run this script.
+* The script will copy the images from ALL meeting workbooks found in JW Library. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
 
 # PreRequisites
-Soundbox installed and working
-JWLibrary installed and working
+* Soundbox installed and working
+* JWLibrary installed and working
 
 # Testing
 Before testing this program you might want to disable the Soundbox MediaJuice service and delete all of your Soundbox media files. This will prove that all of the media files in soundbox have come from this program and not from Soundbox Media subscription. Note as always you should not perform testing on a live (production) system and it is your responsibility to backup any files before deleting them and ensure correct operation of this program.

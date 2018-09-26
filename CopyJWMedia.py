@@ -17,7 +17,7 @@ def get_year_month_from_folder(folder_name):
     month = folder_name[-2:]
     return (year, month)
 
-def get_db_connection(path):
+def get_db_connection(dbpath):
     conn = sqlite3.connect(dbpath)
     conn.row_factory = sqlite3.Row # allows accessing columns using column name - see https://docs.python.org/2/library/sqlite3.html#row-objects
     return conn
@@ -26,16 +26,39 @@ def get_documents(conn):
     c = conn.cursor()
     return c.execute("SELECT * FROM Document ORDER BY DocumentId")
 
-def get_document_multimedia(documentid, conn):
+def get_document_multimedia_info(conn, documentid):
     # Get all of the multimedia records for this document
     c = conn.cursor()
-    return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE DocumentId = ? AND CategoryType = 8", str(documentid))
+    print("str(documentid)", str(documentid))
+    return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE CategoryType = 8 AND DocumentId = ?", (str(documentid),))  #need the extra comma as we pass in a tuple
+
+def get_document_multimedia(conn, documentid):
+    c = conn.cursor()
+    print("documentid", documentid)
+    return c.execute("SELECT MultimediaId FROM DocumentMultimedia WHERE DocumentId = ?", (str(documentid),) )
+
+def get_media_keys(media_conn, issuetag, track):
+    c = media_conn.cursor()
+    return c.execute("SELECT * FROM MediaKey WHERE IssueTagNumber = ? AND Track = ?", (issuetag, track))
+ 
+def get_media_key(media_conn, issuetagnumber, track):
+    c = media_conn.cursor()
+    c.execute("SELECT MediaKeyId FROM MediaKey WHERE IssueTagNumber = ? AND Track = ?", (issuetagnumber, track))
+    row = c.fetchone()
+    return row['MediaKeyId']
 
 def get_first_date_wt(conn):
     c = conn.cursor()
     c.execute("SELECT FirstDatedTextDateOffset FROM Publication")
     row = c.fetchone()
     return int2date(row[0])
+
+def get_multimedia_tag(conn, multimedia_id):
+    c = conn.cursor()
+    c.execute("SELECT IssueTagNumber, Track FROM Multimedia WHERE MultimediaId = ?", (str(multimedia_id),) )
+    row = c.fetchone() 
+    return (row['IssueTagNumber'], row['Track'])
+
 
 def copyfile_nooverwrite(source, target):
     if not os.path.exists(target):
@@ -72,6 +95,11 @@ meeting_parts = {
     }
 
 start = time.time()
+
+## Open Media Catalog
+media_catalog_path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Data", "mediaCollection.db")
+media_conn = get_db_connection(media_catalog_path)
+
 # By using os.path.join() instead of backslashes we make this script cross-platform compatible. You know for when we get JWlibrary and Soundbox for Linux and Mac! ;) teehee...
 targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalendar")
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
@@ -97,6 +125,7 @@ for source_folder in filtered_folders:
         row_class = row['Class']
         if row_class == '106':
             # This is a new week
+            documentid = row['DocumentId']
             week = row['Title']
             split_week = week.split('-')    #splits into 'from' and 'to' sections
             if len(split_week) == 1:
@@ -109,6 +138,18 @@ for source_folder in filtered_folders:
             print("Writing files to", targetpath)
             if not os.path.exists(targetpath):
                 os.makedirs(targetpath)
+
+            ## Get the Videos!!!
+            document_multimedia_records = get_document_multimedia(conn, documentid)
+            for document_multimedia in document_multimedia_records:
+                multimedia_id = document_multimedia['MultimediaId']
+                issuetag, track = get_multimedia_tag(conn, multimedia_id)
+                if issuetag > 0:
+                    #print("issuetag", issuetag)
+                    #print("track", track)
+                    media_key = get_media_key(media_conn, issuetag, track)
+                    print("media_key", media_key)
+            
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians
@@ -160,7 +201,7 @@ for source_folder in filtered_folders:
                 os.makedirs(targetpath)
                 
             counter = 0
-            images = get_document_multimedia(document['DocumentId'], conn)
+            images = get_document_multimedia_info(conn, document['DocumentId'])
             for image in images:
                 counter += 10
                 source_file_path = os.path.join(path, source_folder, image['Filepath'])
@@ -170,7 +211,9 @@ for source_folder in filtered_folders:
             study_date += timedelta(days=7) #Increment the week
             
     conn.close()
-    
+
+media_conn.close()
+
 elapsed = str(time.time() - start)
 print("\r\nFinished")
 print("Time taken: " + elapsed + " seconds")

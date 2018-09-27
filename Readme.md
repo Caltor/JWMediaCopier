@@ -4,6 +4,7 @@
 From 31st December 2018 Soundbox will no longer be supported and the media subscriptions will no longer be active. From 1st January 2019 there will be no inbuilt way to automatically get the media (images and videos) into Soundbox for the meetings. This script automatically copies all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox.
 
 ## Limitations
+* The listing codes for videos are not yet correct so may appear out of sequence in Soundbox
 * Media before 2018 is not copied. This is by design because the DB structure before this does not include the necessary tables for this script to operate.
 * The images for the Congregation Bible Study are NOT copied.
 * The script will copy the images from ALL meeting workbooks found in JW Library. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
@@ -19,7 +20,7 @@ Before testing this program you might want to stop (and disable) the "Soundbox M
 1. Download and install the latest version of Python 3 from https://www.python.org/downloads/windows/. Make sure to tick the checkbox for "Add Python to PATH" during the installation.
 2. Download and save the CopyJWMedia.py script to a suitable location on your computer such as C:\Scripts
 3. Edit line 1 of the CopyJWMedia.py script to reflect the name of your JWLibrary app package folder. This folder is typically found in C:\Users\username\AppData\Local\Packages. Once you have made this change save and close the script file.
-4. If you want to limit the copying of publications to a certain year you can also edit line 2 of the CopyJWMedia.py script to specify the starting year
+4. If you want to limit the copying of publications to a certain year you can also edit line 2 of the CopyJWMedia.py script to specify the starting year. DO NOT SPECIFY A YEAR BEFORE 2017 OR YOU WILL GET ERROR MESSAGES AND THE SCRIPT WILL FAIL!
 
 ## Usage
 1. Download the required meeting workbooks in JWLibrary.

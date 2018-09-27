@@ -29,12 +29,12 @@ def get_documents(conn):
 def get_document_multimedia_info(conn, documentid):
     # Get all of the multimedia records for this document
     c = conn.cursor()
-    print("str(documentid)", str(documentid))
+    #print("str(documentid)", str(documentid))
     return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE CategoryType = 8 AND DocumentId = ?", (str(documentid),))  #need the extra comma as we pass in a tuple
 
 def get_document_multimedia(conn, documentid):
     c = conn.cursor()
-    print("documentid", documentid)
+    #print("documentid", documentid)
     return c.execute("SELECT MultimediaId FROM DocumentMultimedia WHERE DocumentId = ?", (str(documentid),) )
 
 def get_media_keys(media_conn, issuetag, track):
@@ -45,6 +45,8 @@ def get_media_key(media_conn, issuetagnumber, track):
     c = media_conn.cursor()
     c.execute("SELECT MediaKeyId FROM MediaKey WHERE IssueTagNumber = ? AND Track = ?", (issuetagnumber, track))
     row = c.fetchone()
+    if row is None:
+        return
     return row['MediaKeyId']
 
 def get_first_date_wt(conn):
@@ -59,10 +61,19 @@ def get_multimedia_tag(conn, multimedia_id):
     row = c.fetchone() 
     return (row['IssueTagNumber'], row['Track'])
 
-
+def get_video_details(media_conn, media_key):
+    c = media_conn.cursor()
+    c.execute("SELECT Title, Filepath FROM Video WHERE MediaKeyId = ?", (media_key,) )
+    return c.fetchone()
+    
 def copyfile_nooverwrite(source, target):
     if not os.path.exists(target):
         shutil.copy2(source, target)
+
+def sanitise_filename(filename):
+    for char in "<>:\"/\\|?*":
+        filename = filename.replace(char, '')
+    return filename
 
 def int2date(argdate: int) -> date:
     """
@@ -141,6 +152,7 @@ for source_folder in filtered_folders:
 
             ## Get the Videos!!!
             document_multimedia_records = get_document_multimedia(conn, documentid)
+            counter = 0
             for document_multimedia in document_multimedia_records:
                 multimedia_id = document_multimedia['MultimediaId']
                 issuetag, track = get_multimedia_tag(conn, multimedia_id)
@@ -148,8 +160,22 @@ for source_folder in filtered_folders:
                     #print("issuetag", issuetag)
                     #print("track", track)
                     media_key = get_media_key(media_conn, issuetag, track)
-                    print("media_key", media_key)
-            
+                    #print("media_key", media_key)
+                    row = get_video_details(media_conn, media_key)
+                    if row:
+                        source_file_path = row['Filepath']
+                        title = row['Title']
+                        valid_file_name = sanitise_filename(title)
+                        #print("Title: " + title)
+                        #print("Filepath: " + row['Filepath'])
+                        meeting_part = '1'
+                        counter += 10
+                        target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + valid_file_name + ".mp4"
+                        #print("target_file_name: " + target_file_name)
+                        target_file_path = os.path.join(targetpath, target_file_name)
+                        #print("target_file_path: " + target_file_path)
+                        if not os.path.exists(target_file_path):
+                                shutil.copyfile(source_file_path, target_file_path)
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians

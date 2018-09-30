@@ -4,7 +4,6 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 ## TODO:
 ## * Split code into functions rather than one big script
 ## * Allow user to only copy Watchtower or Meeting Workbooks using command line switches
-## * Automatically detect the correct folder name for JWLibrary
 
 import os, calendar, shutil, time, sqlite3
 from datetime import date, timedelta

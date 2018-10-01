@@ -3,7 +3,7 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
 ## * Split code into functions rather than one big script
-## * Allow user to only copy Watchtower or Meeting Workbooks using command line switches
+## * Allow user to copy only Watchtower or only Meeting Workbooks using command line switches
 
 import os, calendar, shutil, time, sqlite3
 from datetime import date, timedelta
@@ -173,8 +173,11 @@ for source_folder in filtered_folders:
                         #print("target_file_name: " + target_file_name)
                         target_file_path = os.path.join(targetpath, target_file_name)
                         #print("target_file_path: " + target_file_path)
-                        if not os.path.exists(target_file_path):
+                        if os.path.exists(source_file_path):
+                            if not os.path.exists(target_file_path):
                                 shutil.copyfile(source_file_path, target_file_path)
+                        else:
+                            print("Warning: File " + source_file_path + " was not found - skipped")
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians

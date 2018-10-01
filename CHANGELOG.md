@@ -1,4 +1,12 @@
-## [0.3.1](https://github.com/Caltor/JWMediaCopier/commit/50ce39e7288cd1ad71f62665989bb758cad04b40#diff-292361dd1bfef1fee5f213c2a4e619ed) - 23/09/2018
+## [0.4.1]
+### Fixed
+* Missing video files are now skipped.
+
+## [0.4.0] (https://github.com/Caltor/JWMediaCopier/commit/b324e07e92b8f62cb68a880d528ab9fa73290657 - 27/09/2018
+### Added
+* Videos now copy
+
+## [0.3.1](https://github.com/Caltor/JWMediaCopier/commit/50ce39e7288cd1ad71f62665989bb758cad04b40) - 23/09/2018
 ### Fixed
 * Strip question marks from file names
 

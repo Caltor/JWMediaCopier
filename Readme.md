@@ -39,4 +39,5 @@ If you get the message 'python is not recognized as an internal or external comm
 
 ## Additional Information
 A log file 'JWMediaCopier.log' will be created in the same folder as the script itself. This file will list any missing video files that have been skipped.
+
 This script does not access the internet or in any way alter the publications provided by Watchtower Bible and Tract Society. It merely copies files from one location on your computer's hard drive to another location on your hard drive. To the best of my knowledge it does not violate any terms and conditions of JWLibrary but you must also ensure any usage is in harmony with your Bible-trained conscience.

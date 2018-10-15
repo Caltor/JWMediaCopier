@@ -1,4 +1,4 @@
-starting_year = 2017
+starting_year = 2019
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:

@@ -5,7 +5,7 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 ## * Split code into functions rather than one big script
 ## * Allow user to copy only Watchtower or only Meeting Workbooks using command line switches
 
-import os, calendar, shutil, time, sqlite3
+import os, calendar, shutil, time, sqlite3, logging
 from datetime import date, timedelta
 
 def get_filtered_folders(search_string, array):
@@ -93,7 +93,6 @@ def int2date(argdate: int) -> date:
     day = int(argdate % 100)
 
     return date(year, month, day)
-
                     
 ## Main program ##
 print("Copying images from JW Library Meeting Workbooks to Soundbox...")
@@ -105,6 +104,15 @@ meeting_parts = {
     }
 
 start = time.time()
+
+## setup the logger
+##logger = logging.getLogger('myapp')
+##hdlr = logging.FileHandler('JWMediaCopier.log')
+##formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+##hdlr.setFormatter(formatter)
+##logger.addHandler(hdlr) 
+##logger.setLevel(logging.WARNING)
+logging.basicConfig(filename='JWMediaCopier.log', level=logging.WARNING, format='%(asctime)s %(levelname)s %(message)s', filemode='w')  ##overwrites the log each time
 
 ## Open Media Catalog
 media_catalog_path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Data", "mediaCollection.db")
@@ -177,7 +185,9 @@ for source_folder in filtered_folders:
                             if not os.path.exists(target_file_path):
                                 shutil.copyfile(source_file_path, target_file_path)
                         else:
-                            print("Warning: File " + source_file_path + " was not found - skipped")
+                            warning_message = "File " + source_file_path + " was not found - skipped"
+                            logging.warning(warning_message)
+                            print("Warning: " + warning_message)
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians

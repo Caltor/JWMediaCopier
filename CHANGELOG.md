@@ -1,3 +1,7 @@
+## [0.5.0](https://github.com/Caltor/JWMediaCopier/commit/73c9554ed45ac775e17ed7ef0a11f25377dfb9d5) - 15/10/2018
+### Added
+* Missing files are now logged.
+
 ## [0.4.1](https://github.com/Caltor/JWMediaCopier/commit/4e663355beab86479f09bc176749d8b81962ae50) - 01/10/2018
 ### Fixed
 * Missing video files are now skipped.

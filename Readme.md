@@ -19,8 +19,7 @@ Before testing this program you might want to stop (and disable) the "Soundbox M
 ## Installation
 1. Download and install the latest version of Python 3 from https://www.python.org/downloads/windows/. Make sure to tick the checkbox for "Add Python to PATH" during the installation.
 2. Download and save the CopyJWMedia.py script to a suitable location on your computer such as C:\Scripts
-3. Edit line 1 of the CopyJWMedia.py script to reflect the name of your JWLibrary app package folder. This folder is typically found in C:\Users\username\AppData\Local\Packages. Once you have made this change save and close the script file.
-4. If you want to limit the copying of publications to a certain year you can also edit line 2 of the CopyJWMedia.py script to specify the starting year. DO NOT SPECIFY A YEAR BEFORE 2017 OR YOU WILL GET ERROR MESSAGES AND THE SCRIPT WILL FAIL!
+3. By default this program will copy media from 2019 onwards. If you want to limit the copying of publications to a different year you can  edit line 1 of the CopyJWMedia.py script to specify the starting year. DO NOT SPECIFY A YEAR BEFORE 2017 OR YOU WILL GET ERROR MESSAGES AND THE SCRIPT WILL FAIL!
 
 ## Usage
 1. Download the required meeting workbooks in JWLibrary.

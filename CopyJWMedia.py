@@ -1,4 +1,4 @@
-starting_year = 2019
+starting_year = 2018
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -25,16 +25,13 @@ def get_documents(conn):
     c = conn.cursor()
     return c.execute("SELECT * FROM Document ORDER BY DocumentId")
 
-def get_document_multimedia_info(conn, documentid):
-    # Get all of the multimedia records for this document
-    c = conn.cursor()
-    #print("str(documentid)", str(documentid))
-    return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE CategoryType = 8 AND DocumentId = ?", (str(documentid),))  #need the extra comma as we pass in a tuple
-
 def get_document_multimedia(conn, documentid):
     c = conn.cursor()
-    #print("documentid", documentid)
     return c.execute("SELECT MultimediaId FROM DocumentMultimedia WHERE DocumentId = ?", (str(documentid),) )
+
+def get_document_multimedia_info(conn, documentid):
+    c = conn.cursor()
+    return c.execute("SELECT DocumentMultimedia.MultimediaId, Label, Filepath FROM DocumentMultimedia JOIN Multimedia ON DocumentMultimedia.MultimediaId = Multimedia.MultimediaId WHERE CategoryType = 8 AND DocumentId = ?", (str(documentid),))  #need the extra comma as we pass in a tuple
 
 def get_media_keys(media_conn, issuetag, track):
     c = media_conn.cursor()
@@ -56,9 +53,9 @@ def get_first_date_wt(conn):
 
 def get_multimedia_tag(conn, multimedia_id):
     c = conn.cursor()
-    c.execute("SELECT IssueTagNumber, Track FROM Multimedia WHERE MultimediaId = ?", (str(multimedia_id),) )
+    c.execute("SELECT KeySymbol, IssueTagNumber, Track FROM Multimedia WHERE MultimediaId = ?", (str(multimedia_id),) )
     row = c.fetchone() 
-    return (row['IssueTagNumber'], row['Track'])
+    return (row['KeySymbol'], row['IssueTagNumber'], row['Track'])
 
 def get_video_details(media_conn, media_key):
     c = media_conn.cursor()
@@ -106,12 +103,6 @@ meeting_parts = {
 start = time.time()
 
 ## setup the logger
-##logger = logging.getLogger('myapp')
-##hdlr = logging.FileHandler('JWMediaCopier.log')
-##formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-##hdlr.setFormatter(formatter)
-##logger.addHandler(hdlr) 
-##logger.setLevel(logging.WARNING)
 logging.basicConfig(filename='JWMediaCopier.log', level=logging.WARNING, format='%(asctime)s %(levelname)s %(message)s', filemode='w')  ##overwrites the log each time
 
 ## Open Media Catalog
@@ -162,25 +153,18 @@ for source_folder in filtered_folders:
             counter = 0
             for document_multimedia in document_multimedia_records:
                 multimedia_id = document_multimedia['MultimediaId']
-                issuetag, track = get_multimedia_tag(conn, multimedia_id)
-                if issuetag > 0:
-                    #print("issuetag", issuetag)
-                    #print("track", track)
+                keysymbol, issuetag, track = get_multimedia_tag(conn, multimedia_id)
+                if keysymbol == 'nwtsv' or issuetag > 0:
                     media_key = get_media_key(media_conn, issuetag, track)
-                    #print("media_key", media_key)
                     row = get_video_details(media_conn, media_key)
                     if row:
                         source_file_path = row['Filepath']
                         title = row['Title']
                         valid_file_name = sanitise_filename(title)
-                        #print("Title: " + title)
-                        #print("Filepath: " + row['Filepath'])
                         meeting_part = '1'
                         counter += 10
                         target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + valid_file_name + ".mp4"
-                        #print("target_file_name: " + target_file_name)
                         target_file_path = os.path.join(targetpath, target_file_name)
-                        #print("target_file_path: " + target_file_path)
                         if os.path.exists(source_file_path):
                             if not os.path.exists(target_file_path):
                                 shutil.copyfile(source_file_path, target_file_path)
@@ -192,7 +176,6 @@ for source_folder in filtered_folders:
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians
             document_id = row['DocumentId']
-            #print("Document: ", document_id)
 
             # Get all of the multimedia records for this document
             d = conn.cursor()

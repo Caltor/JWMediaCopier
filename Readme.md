@@ -1,4 +1,4 @@
-**WARNING: EXPERIMENTAL SCRIPT - PLEASE NOTE THIS SCRIPT WILL COPY LOTS OF FILES INTO YOUR SOUNDBOX FOLDERS AND MAY MESS UP YOUR SOUNDBOX MEDIA FOLDERS. IT IS STRONGLY ADVISED TO MAKE A BACKUP OF YOUR SOUNDBOX MEDIA FOLDER BEFORE PROCEEDING ON A PRODUCTION/LIVE (KINGDOM HALL) COMPUTER. There you have been warned!!!**
+**Warning: Experimental script - Please note this script will copy lots of files into your soundbox folders and may mess up your soundbox media folders. It is strongly advised to make a backup of your soundbox media folder before proceeding on a production/live (kingdom hall) computer. YOU HAVE BEEN WARNED!!!**
 
 ## Description
 From 31st December 2018 Soundbox will no longer be supported and the media subscriptions will no longer be active. From 1st January 2019 there will be no inbuilt way to automatically get the media (images and videos) into Soundbox for the meetings. This script automatically copies all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox.

@@ -1,4 +1,4 @@
-starting_year = 2018
+starting_year = 2019
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -185,8 +185,8 @@ for source_folder in filtered_folders:
                 counter += 10
                 sourcefile = row2['Filepath']
                 meeting_part = meeting_parts[row_class]
-                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','') + ".jpg"
-                target_file_path = os.path.join(targetpath, target_file_name)
+                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','')
+                target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                 if not os.path.exists(target_file_path):
                     source_file_path = os.path.join(source_path, sourcefile)
                     shutil.copyfile(source_file_path, target_file_path)
@@ -226,7 +226,8 @@ for source_folder in filtered_folders:
             for image in images:
                 counter += 10
                 source_file_path = os.path.join(path, source_folder, image['Filepath'])
-                target_file_path = os.path.join(targetpath, "W2-" + str(counter).zfill(3) + " " + image['Label'] + ".jpg")
+                target_file_name = "W2-" + str(counter).zfill(3) + " " + image['Label'].replace('?','')
+                target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                 copyfile_nooverwrite(source_file_path, target_file_path)
 
             study_date += timedelta(days=7) #Increment the week

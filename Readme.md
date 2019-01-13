@@ -12,7 +12,7 @@ From 31st December 2018 Soundbox will no longer be supported and the media subsc
 * JWLibrary installed and working
 
 ## Testing
-Before testing this program you might want to stop (and disable) the "Soundbox MediaJuice" service and delete all of your Soundbox media files. This will prove that all of the media files in soundbox have come from this program and not from Soundbox Media subscription. Note as always you should not perform testing on a live (production) system and it is your responsibility to backup any files before deleting them and ensure correct operation of this program.
+Note as always you should not perform testing on a live (production) system and it is your responsibility to backup any files before deleting them and ensure correct operation of this program.
 
 ## Installation
 1. Download and install the latest version of Python 3 from https://www.python.org/downloads/windows/. Make sure to tick the checkbox for "Add Python to PATH" during the installation.

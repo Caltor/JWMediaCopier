@@ -1,4 +1,5 @@
 starting_year = 2019
+studyPublication = "jy"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -50,6 +51,11 @@ def get_first_date_wt(conn):
     c.execute("SELECT FirstDatedTextDateOffset FROM Publication")
     row = c.fetchone()
     return int2date(row[0])
+
+def get_meps_document_ids(conn, documentId):
+    c = conn.cursor()
+    c.execute("select RefMepsDocumentId from Extract inner join RefPublication on Extract.RefPublicationId = RefPublication.RefPublicationId inner join DocumentExtract on Extract.ExtractId = DocumentExtract.ExtractId where DocumentExtract.DocumentId = ? and RefPublication.RootSymbol = ?", (str(documentId), studyPublication))
+    return c
 
 def get_multimedia_tag(conn, multimedia_id):
     c = conn.cursor()
@@ -148,6 +154,11 @@ for source_folder in filtered_folders:
             if not os.path.exists(targetpath):
                 os.makedirs(targetpath)
 
+            ## Get the Congregation Bible Study images
+            document_ids = get_meps_document_ids(conn, documentid)
+            for row in document_ids:
+                print(row["RefMepsDocumentId"])
+                
             ## Get the Videos!!!
             document_multimedia_records = get_document_multimedia(conn, documentid)
             counter = 0

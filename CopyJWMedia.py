@@ -1,5 +1,5 @@
 starting_year = 2019
-studyPublication = "jy"
+study_publication = "jy"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -25,6 +25,10 @@ def get_db_connection(dbpath):
 def get_documents(conn):
     c = conn.cursor()
     return c.execute("SELECT * FROM Document ORDER BY DocumentId")
+
+def get_documents_by_meps_document_id(conn):
+    c = conn.cursor()
+    return c.execute("SELECT * FROM Document WHERE MepsDocumentId = ?")
 
 def get_document_multimedia(conn, documentid):
     c = conn.cursor()
@@ -118,7 +122,13 @@ media_conn = get_db_connection(media_catalog_path)
 # By using os.path.join() instead of backslashes we make this script cross-platform compatible. You know for when we get JWlibrary and Soundbox for Linux and Mac! ;) teehee...
 targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalendar")
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
+
+## Open Congregation Bible Study catalog
+book_study_path = os.path.join(path, study_publication + "_E")
+book_study_conn = get_db_connection(book_study_path)
+
 array = os.listdir(path)
+
 
 print("\r\nMeeting Workbooks:")
 filtered_folders = get_filtered_folders("mwb_E_", array)
@@ -158,6 +168,9 @@ for source_folder in filtered_folders:
             document_ids = get_meps_document_ids(conn, documentid)
             for row in document_ids:
                 print(row["RefMepsDocumentId"])
+                ## Get jy.db -> Document -> DocumentMultimedia -> Multimedia etc
+                book_study_docs = get_documents_by_meps_document_id(row["RefMepsDocumentId"])
+                
                 
             ## Get the Videos!!!
             document_multimedia_records = get_document_multimedia(conn, documentid)

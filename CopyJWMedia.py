@@ -1,5 +1,6 @@
 starting_year = 2019
-study_publication = "jy_E"
+study_publication = "jy"
+study_publication_full = study_publication + "_E"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -26,9 +27,9 @@ def get_documents(conn):
     c = conn.cursor()
     return c.execute("SELECT * FROM Document ORDER BY DocumentId")
 
-def get_documents_by_meps_document_id(conn):
+def get_documents_by_meps_document_id(conn, documentid):
     c = conn.cursor()
-    return c.execute("SELECT * FROM Document WHERE MepsDocumentId = ?")
+    return c.execute("SELECT * FROM Document WHERE MepsDocumentId = ?", (str(documentid),) )
 
 def get_document_multimedia(conn, documentid):
     c = conn.cursor()
@@ -56,9 +57,9 @@ def get_first_date_wt(conn):
     row = c.fetchone()
     return int2date(row[0])
 
-def get_meps_document_ids(conn, documentId):
+def get_meps_document_ids(conn, documentid):
     c = conn.cursor()
-    c.execute("select RefMepsDocumentId from Extract inner join RefPublication on Extract.RefPublicationId = RefPublication.RefPublicationId inner join DocumentExtract on Extract.ExtractId = DocumentExtract.ExtractId where DocumentExtract.DocumentId = ? and RefPublication.RootSymbol = ?", (str(documentId), studyPublication))
+    c.execute("select RefMepsDocumentId from Extract inner join RefPublication on Extract.RefPublicationId = RefPublication.RefPublicationId inner join DocumentExtract on Extract.ExtractId = DocumentExtract.ExtractId where DocumentExtract.DocumentId = ? and RefPublication.RootSymbol = ?", (str(documentid), study_publication))
     return c
 
 def get_multimedia_tag(conn, multimedia_id):
@@ -124,8 +125,8 @@ targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalen
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
 
 ## Open Congregation Bible Study catalog
-book_study_path = os.path.join(path, study_publication)
-book_study_database = os.path.join(book_study_path, study_publication + ".db")
+book_study_path = os.path.join(path, study_publication_full)
+book_study_database = os.path.join(book_study_path, study_publication_full + ".db")
 book_study_conn = get_db_connection(book_study_database)
 
 array = os.listdir(path)
@@ -168,12 +169,12 @@ for source_folder in filtered_folders:
             ## Get the Congregation Bible Study images
             document_ids = get_meps_document_ids(conn, documentid)
             for row in document_ids:
-                print(row['RefMepsDocumentId'])
                 ## Get jy.db -> Document -> DocumentMultimedia -> Multimedia etc
                 counter=0
                 for book_study_doc in get_documents_by_meps_document_id(book_study_conn, row['RefMepsDocumentId']):
                     counter += 10
                     for media in get_document_multimedia_info(book_study_conn, book_study_doc["DocumentId"]):
+                        book_study_source_file = media['Filepath']
                         target_file_name = "M3-" + str(counter).zfill(3) + " " + media['Label'].replace('?', '')
                         target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                         if not os.path.exists(target_file_path):

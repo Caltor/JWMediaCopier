@@ -1,4 +1,6 @@
 starting_year = 2019
+study_publication = "jy"
+study_publication_full = study_publication + "_E"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -25,6 +27,10 @@ def get_documents(conn):
     c = conn.cursor()
     return c.execute("SELECT * FROM Document ORDER BY DocumentId")
 
+def get_documents_by_meps_document_id(conn, documentid):
+    c = conn.cursor()
+    return c.execute("SELECT * FROM Document WHERE MepsDocumentId = ?", (str(documentid),) )
+
 def get_document_multimedia(conn, documentid):
     c = conn.cursor()
     return c.execute("SELECT MultimediaId FROM DocumentMultimedia WHERE DocumentId = ?", (str(documentid),) )
@@ -50,6 +56,11 @@ def get_first_date_wt(conn):
     c.execute("SELECT FirstDatedTextDateOffset FROM Publication")
     row = c.fetchone()
     return int2date(row[0])
+
+def get_meps_document_ids(conn, documentid):
+    c = conn.cursor()
+    c.execute("select RefMepsDocumentId from Extract inner join RefPublication on Extract.RefPublicationId = RefPublication.RefPublicationId inner join DocumentExtract on Extract.ExtractId = DocumentExtract.ExtractId where DocumentExtract.DocumentId = ? and RefPublication.RootSymbol = ?", (str(documentid), study_publication))
+    return c
 
 def get_multimedia_tag(conn, multimedia_id):
     c = conn.cursor()
@@ -112,7 +123,14 @@ media_conn = get_db_connection(media_catalog_path)
 # By using os.path.join() instead of backslashes we make this script cross-platform compatible. You know for when we get JWlibrary and Soundbox for Linux and Mac! ;) teehee...
 targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalendar")
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
+
+## Open Congregation Bible Study catalog
+book_study_path = os.path.join(path, study_publication_full)
+book_study_database = os.path.join(book_study_path, study_publication_full + ".db")
+book_study_conn = get_db_connection(book_study_database)
+
 array = os.listdir(path)
+
 
 print("\r\nMeeting Workbooks:")
 filtered_folders = get_filtered_folders("mwb_E_", array)
@@ -148,6 +166,22 @@ for source_folder in filtered_folders:
             if not os.path.exists(targetpath):
                 os.makedirs(targetpath)
 
+            ## Get the Congregation Bible Study images
+            document_ids = get_meps_document_ids(conn, documentid)
+            for row in document_ids:
+                ## Get jy.db -> Document -> DocumentMultimedia -> Multimedia etc
+                counter=0
+                for book_study_doc in get_documents_by_meps_document_id(book_study_conn, row['RefMepsDocumentId']):
+                    counter += 10
+                    for media in get_document_multimedia_info(book_study_conn, book_study_doc["DocumentId"]):
+                        book_study_source_file = media['Filepath']
+                        target_file_name = "M3-" + str(counter).zfill(3) + " " + media['Label'].replace('?', '')
+                        target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
+                        if not os.path.exists(target_file_path):
+                            source_file_path = os.path.join(book_study_path, book_study_source_file)
+                            shutil.copyfile(source_file_path, target_file_path)
+                
+                
             ## Get the Videos!!!
             document_multimedia_records = get_document_multimedia(conn, documentid)
             counter = 0
@@ -172,6 +206,7 @@ for source_folder in filtered_folders:
                             warning_message = "File " + source_file_path + " was not found - skipped"
                             logging.warning(warning_message)
                             print("Warning: " + warning_message)
+
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians

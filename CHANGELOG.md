@@ -1,3 +1,7 @@
+## [0.6.0](https://github.com/Caltor/JWMediaCopier/releases/tag/v0.6.0) - 12/01/2019
+### Added
+* Images for Congregation Bible Study are now copied.
+
 ## [0.5.2](https://github.com/Caltor/JWMediaCopier/releases/tag/v0.5.2) - 12/01/2019
 ### Fixed
 * Watchtower images weren't copying if file path was over 260 characters.

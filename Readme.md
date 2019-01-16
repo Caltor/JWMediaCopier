@@ -4,8 +4,8 @@ From 31st December 2018 Soundbox will no longer be supported and the media subsc
 ## Limitations
 * The listing codes for videos are not yet correct so may appear out of sequence in Soundbox
 * Media before 2018 is not copied. This is by design because the DB structure before this does not include the necessary tables for this script to operate.
-* The images for the Congregation Bible Study are NOT copied.
 * The script will copy the images from ALL meeting workbooks found in JW Library. Be aware this could cause LOTS of files and folders to appear in your Soundbox media folders.
+* The Congregation Bible Study images assumes you are using jy ("Jesus - The Way") book. You must edit line 2 of the script when this changes.
 
 ## PreRequisites
 * Soundbox installed and working

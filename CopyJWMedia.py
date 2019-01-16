@@ -1,5 +1,5 @@
 starting_year = 2019
-study_publication = "jy"
+study_publication = "jy_E"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -124,8 +124,9 @@ targetpath_base = os.path.join(os.getenv("ProgramData"), "SoundBox", "MediaCalen
 path = os.path.join(os.getenv("LOCALAPPDATA"), "packages", jwlibrary_package, "LocalState", "Publications")
 
 ## Open Congregation Bible Study catalog
-book_study_path = os.path.join(path, study_publication + "_E")
-book_study_conn = get_db_connection(book_study_path)
+book_study_path = os.path.join(path, study_publication)
+book_study_database = os.path.join(book_study_path, study_publication + ".db")
+book_study_conn = get_db_connection(book_study_database)
 
 array = os.listdir(path)
 
@@ -167,9 +168,17 @@ for source_folder in filtered_folders:
             ## Get the Congregation Bible Study images
             document_ids = get_meps_document_ids(conn, documentid)
             for row in document_ids:
-                print(row["RefMepsDocumentId"])
+                print(row['RefMepsDocumentId'])
                 ## Get jy.db -> Document -> DocumentMultimedia -> Multimedia etc
-                book_study_docs = get_documents_by_meps_document_id(row["RefMepsDocumentId"])
+                counter=0
+                for book_study_doc in get_documents_by_meps_document_id(book_study_conn, row['RefMepsDocumentId']):
+                    counter += 10
+                    for media in get_document_multimedia_info(book_study_conn, book_study_doc["DocumentId"]):
+                        target_file_name = "M3-" + str(counter).zfill(3) + " " + media['Label'].replace('?', '')
+                        target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
+                        if not os.path.exists(target_file_path):
+                            source_file_path = os.path.join(book_study_path, book_study_source_file)
+                            shutil.copyfile(source_file_path, target_file_path)
                 
                 
             ## Get the Videos!!!
@@ -196,6 +205,7 @@ for source_folder in filtered_folders:
                             warning_message = "File " + source_file_path + " was not found - skipped"
                             logging.warning(warning_message)
                             print("Warning: " + warning_message)
+
 
         if row_class in ['21','107','10']:
             # Treasures from God's word or Living as Christians

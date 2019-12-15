@@ -6,7 +6,7 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 ## TODO:
 ## * Split code into functions rather than one big script
 ## * Allow user to copy only Watchtower or only Meeting Workbooks using command line switches
-
+## * Filter out all characters that aren't valid in Windows filename- see line 227, currently using replace(). Could possibly use regex for this
 import os, calendar, shutil, time, sqlite3, logging
 from datetime import date, timedelta
 
@@ -220,7 +220,7 @@ for source_folder in filtered_folders:
                 counter += 10
                 sourcefile = row2['Filepath']
                 meeting_part = meeting_parts[row_class]
-                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','')
+                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','').replace('/','').replace(':','')
                 target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                 if not os.path.exists(target_file_path):
                     source_file_path = os.path.join(source_path, sourcefile)

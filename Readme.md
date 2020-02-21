@@ -1,5 +1,5 @@
 ## Description
-From 31st December 2018 Soundbox will no longer be supported and the media subscriptions will no longer be active. From 1st January 2019 there will be no inbuilt way to automatically get the media (images and videos) into Soundbox for the meetings. This script automatically copies all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox.
+This script automatically copies all of the images from the Meeting Workbooks and Watchtowers in JW Library to Soundbox. This is useful because since 1st January 2019 there is no inbuilt way to automatically get the media (images and videos) into Soundbox for the meetings.
 
 ## Limitations
 * The listing codes for videos are not yet correct so may appear out of sequence in Soundbox
@@ -37,4 +37,4 @@ If you get the message 'python is not recognized as an internal or external comm
 ## Additional Information
 A log file 'JWMediaCopier.log' will be created in the same folder as the script itself. This file will list any missing video files that have been skipped.
 
-This script does not access the internet or in any way alter the publications provided by Watchtower Bible and Tract Society. It merely copies files from one location on your computer's hard drive to another location on your hard drive. To the best of my knowledge it does not violate any terms and conditions of JWLibrary but you must also ensure any usage is in harmony with your Bible-trained conscience.
+This script does not access the internet or in any way alter the publications provided by Watchtower Bible and Tract Society. It merely copies files from one location on your computer's hard drive to another location on your hard drive. To the best of my knowledge it does not violate any terms and conditions of JWLibrary but you must also ensure any usage is legal in your country and in harmony with your Bible-trained conscience.

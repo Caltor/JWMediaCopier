@@ -7,7 +7,7 @@ jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 ## * Split code into functions rather than one big script
 ## * Allow user to copy only Watchtower or only Meeting Workbooks using command line switches
 ## * Filter out all characters that aren't valid in Windows filename- see line 227, currently using replace(). Could possibly use regex for this
-import os, calendar, shutil, time, sqlite3, logging
+import os, calendar, shutil, time, sqlite3, logging, re
 from datetime import date, timedelta
 
 def get_filtered_folders(search_string, array):
@@ -78,6 +78,7 @@ def copyfile_nooverwrite(source, target):
         shutil.copy2(source, target)
 
 def sanitise_filename(filename):
+    ## This function is no longer used as we are using p.sub (regexp) instead. Could possibly change this function to use regexp?
     for char in "<>:\"/\\|?*":
         filename = filename.replace(char, '')
     return filename
@@ -112,6 +113,9 @@ meeting_parts = {
     }
 
 start = time.time()
+
+## Compile regex
+p = re.compile(r'[^\w\s,.]')   ## matches all non-alphanumeric characters except space, comma and full-stop
 
 ## setup the logger
 logging.basicConfig(filename='JWMediaCopier.log', level=logging.WARNING, format='%(asctime)s %(levelname)s %(message)s', filemode='w')  ##overwrites the log each time
@@ -175,7 +179,7 @@ for source_folder in filtered_folders:
                     counter += 10
                     for media in get_document_multimedia_info(book_study_conn, book_study_doc["DocumentId"]):
                         book_study_source_file = media['Filepath']
-                        target_file_name = "M3-" + str(counter).zfill(3) + " " + media['Label'].replace('?', '')
+                        target_file_name = "M3-" + str(counter).zfill(3) + " " + p.sub('', media['Label'])  ## p.sub strips non-alpha
                         target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                         if not os.path.exists(target_file_path):
                             source_file_path = os.path.join(book_study_path, book_study_source_file)
@@ -194,7 +198,8 @@ for source_folder in filtered_folders:
                     if row:
                         source_file_path = row['Filepath']
                         title = row['Title']
-                        valid_file_name = sanitise_filename(title)
+                        ## valid_file_name = sanitise_filename(title)
+                        valid_file_name = p.sub('', title)  ## p.sub removes non-alpha
                         meeting_part = '1'
                         counter += 10
                         target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + valid_file_name + ".mp4"
@@ -220,7 +225,7 @@ for source_folder in filtered_folders:
                 counter += 10
                 sourcefile = row2['Filepath']
                 meeting_part = meeting_parts[row_class]
-                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + row2['Label'].replace('?','').replace('/','').replace(':','')
+                target_file_name = "M" + meeting_part + "-" + str(counter).zfill(3) + " " + p.sub('', row2['Label'])
                 target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                 if not os.path.exists(target_file_path):
                     source_file_path = os.path.join(source_path, sourcefile)
@@ -261,7 +266,7 @@ for source_folder in filtered_folders:
             for image in images:
                 counter += 10
                 source_file_path = os.path.join(path, source_folder, image['Filepath'])
-                target_file_name = "W2-" + str(counter).zfill(3) + " " + image['Label'].replace('?','')
+                target_file_name = "W2-" + str(counter).zfill(3) + " " + p.sub('',image['Label'])   ## p.sub strips non-alpha
                 target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
                 copyfile_nooverwrite(source_file_path, target_file_path)
 

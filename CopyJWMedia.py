@@ -1,5 +1,5 @@
 starting_year = 2019
-study_publication = "jy"
+study_publication = "rr" ## This needs to be the 2 characer shortcode of the study publication, currently the "Pure Worship" book
 study_publication_full = study_publication + "_E"
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 

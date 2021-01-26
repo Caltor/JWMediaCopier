@@ -1,6 +1,7 @@
 starting_year = 2019
 study_publication = "rr" ## This needs to be the 2 characer shortcode of the study publication, currently the "Pure Worship" book
-study_publication_full = study_publication + "_E"
+language_suffix = "_T"
+study_publication_full = study_publication + language_suffix
 jwlibrary_package = "WatchtowerBibleandTractSo.45909CDBADF3C_5rz59y55nfz3e"
 
 ## TODO:
@@ -137,7 +138,7 @@ array = os.listdir(path)
 
 
 print("\r\nMeeting Workbooks:")
-filtered_folders = get_filtered_folders("mwb_E_", array)
+filtered_folders = get_filtered_folders("mwb"+language_suffix+"_", array)
 for source_folder in filtered_folders:
     year, month = get_year_month_from_folder(source_folder)
     
@@ -157,12 +158,15 @@ for source_folder in filtered_folders:
         if row_class == '106':
             # This is a new week
             documentid = row['DocumentId']
-            week = row['Title']
+            week = re.sub("[^0-9]", "", row['Title'])   # Remove non-numeric characters from the string. E.g. to change "January 4-11" or "4-11 de Janeiro" to "4-11"
+            print(week) # E.g. "4-11"
             split_week = week.split('-')    #splits into 'from' and 'to' sections
             if len(split_week) == 1:
                 split_week = week.split('–')
 
+            print(split_week)
             from_date = split_week[0].split()  # splits into month and date
+            print(from_date[0])
             first_date = from_date[1]
             target_folder = year + "-" + month + "-" + str(first_date).zfill(2)
             targetpath = os.path.join(targetpath_base, year, target_folder)
@@ -236,7 +240,7 @@ for source_folder in filtered_folders:
 
 ## WatchTower
 print("\r\nWatchtowers:")
-filtered_folders = get_filtered_folders("w_E_", array)
+filtered_folders = get_filtered_folders("w"+language_suffix+"_", array)
 for source_folder in filtered_folders:
     dbpath = os.path.join(path, source_folder, source_folder+".db")
     conn = get_db_connection(dbpath)

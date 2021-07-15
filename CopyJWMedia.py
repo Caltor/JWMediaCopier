@@ -103,7 +103,26 @@ def int2date(argdate: int) -> date:
     day = int(argdate % 100)
 
     return date(year, month, day)
-                    
+
+def month_to_number(month_name):
+    month_dict = {
+        "January": "01",
+        "February": "02",
+        "March": "03",
+        "April": "04",
+        "May": "05",
+        "June": "06",
+        "July": "07",
+        "August": "08",
+        "September": "09",
+        "October": "10",
+        "November": "11",
+        "December": "12"
+    }
+
+    return month_dict[month_name]
+
+
 ## Main program ##
 print("Copying images from JW Library Meeting Workbooks to Soundbox...")
 
@@ -159,30 +178,46 @@ for source_folder in filtered_folders:
             # This is a new week
             documentid = row['DocumentId']
             title = row['Title']
-            week = re.sub("[^0-9-–]", "", row['Title'])   # Remove non-numeric characters (excluding the hyphen) from the string. E.g. to change "January 4-11" or "4-11 de Janeiro" to "4-11"
+            # week = re.sub("[^0-9-–]", "", row['Title'])   # Remove non-numeric characters (excluding the hyphen) from the string. E.g. to change "January 4-11" or "4-11 de Janeiro" to "4-11"
+            week = title
             
             split_week = week.split('-')    #splits into 'from' and 'to' sections
+            
+            from_date = split_week[0]
+            split_from_date = from_date.split(" ")
+            from_date_month = split_from_date[0]
+            from_month_number = month_to_number(from_date_month)
+            from_date_day = split_from_date[1]
+
+            # New month
             if len(split_week) == 1:
                 ## Need to use long hyphen instead
                 split_week = week.split('–')    #splits into 'from' and 'to' sections
+                to_date = split_week[1]
+                split_to_date = to_date.split(" ")
+                to_date_month = split_to_date[0]
+                to_month_number = month_to_number(to_date_month)
+                to_date_day = split_to_date[1]
+            else:
+                to_month_number = from_month_number
+                to_date_day = split_week[1]
 
-            from_date = split_week[0]
-            to_date = split_week[1]
             
-            target_folder = year + "-" + month + "-" + str(to_date).zfill(2)
+            target_folder = year + "-" + from_month_number + "-" + str(from_date_day).zfill(2)
             targetpath = os.path.join(targetpath_base, year, target_folder)
             print("Writing files to", targetpath)
             if not os.path.exists(targetpath):
                 os.makedirs(targetpath)
 
+
             ## Get the Congregation Bible Study images
+            counter=0
             document_ids = get_meps_document_ids(conn, documentid)
             for row in document_ids:
                 ## Get jy.db -> Document -> DocumentMultimedia -> Multimedia etc
-                counter=0
                 for book_study_doc in get_documents_by_meps_document_id(book_study_conn, row['RefMepsDocumentId']):
-                    counter += 10
                     for media in get_document_multimedia_info(book_study_conn, book_study_doc["DocumentId"]):
+                        counter += 10
                         book_study_source_file = media['Filepath']
                         target_file_name = "M3-" + str(counter).zfill(3) + " " + p.sub('', media['Label'])  ## p.sub strips non-alpha
                         target_file_path = os.path.join(targetpath, target_file_name)[:255] + ".jpg"
@@ -193,7 +228,6 @@ for source_folder in filtered_folders:
                 
             ## Get the Videos!!!
             document_multimedia_records = get_document_multimedia(conn, documentid)
-            counter = 0
             for document_multimedia in document_multimedia_records:
                 multimedia_id = document_multimedia['MultimediaId']
                 keysymbol, issuetag, track = get_multimedia_tag(conn, multimedia_id)
